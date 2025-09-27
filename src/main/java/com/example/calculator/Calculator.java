@@ -16,5 +16,8 @@ public class Calculator {
         return result;
     }
 
-    
+    public static double ln(double x) {
+        if (x <= 0) throw new IllegalArgumentException("ln: input must be > 0");
+        return Math.log(x);
+    }
 }
