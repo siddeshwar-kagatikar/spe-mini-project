@@ -6,16 +6,17 @@
   <groupId>com.example</groupId>
   <artifactId>scientific-calculator</artifactId>
   <version>1.0.0</version>
+  <packaging>jar</packaging>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <mainClass>com.example.calculator.Main</mainClass>
   </properties>
 
   <dependencies>
-    <!-- JUnit 5 -->
+    <!-- JUnit 5 for testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -26,19 +27,25 @@
 
   <build>
     <plugins>
-      <!-- Compiler -->
+      <!-- Java compiler plugin -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
       </plugin>
 
-      <!-- Surefire to run JUnit 5 tests -->
+      <!-- JUnit 5 test runner -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M8</version>
       </plugin>
 
-      <!-- Shade: create an executable/fat jar -->
+      <!-- Shade plugin to create a fat jar with Main class -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -46,8 +53,11 @@
         <executions>
           <execution>
             <phase>package</phase>
-            <goals><goal>shade</goal></goals>
+            <goals>
+              <goal>shade</goal>
+            </goals>
             <configuration>
+              <finalName>app</finalName> <!-- always output target/app.jar -->
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>${mainClass}</mainClass>
