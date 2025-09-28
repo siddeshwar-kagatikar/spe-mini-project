@@ -1,31 +1,29 @@
 pipeline {
-  agent any
-  environment {
-    IMAGE = "siddeshwarsk/scientific-calculator"
-    TAG = "latest"
-  }
-  stages {
-    stage('Build & Test') {
-      steps {
-        sh 'mvn clean test package'
-      }
+    agent any
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials') 
+        DOCKER_IMAGE = "siddeshwarsk/scientific-calculator:latest"
     }
 
-    stage('Docker Build') {
-      steps {
-        sh "docker build -t ${IMAGE}:${TAG} ."
-      }
-    }
-
-    stage('Docker Push') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
-                                          usernameVariable: 'DH_USER',
-                                          passwordVariable: 'DH_PASS')]) {
-          sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
-          sh "docker push ${IMAGE}:${TAG}"
+    stages {
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean test package'
+            }
         }
-      }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Login to Docker Hub & Push') {
+            steps {
+                sh "echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin"
+                sh "docker push ${DOCKER_IMAGE}"
+            }
+        }
     }
-  }
 }
