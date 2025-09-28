@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials') 
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-creds') 
         DOCKER_IMAGE = "siddeshwarsk/scientific-calculator:latest"
     }
 
