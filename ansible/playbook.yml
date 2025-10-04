@@ -1,31 +1,20 @@
----
-- name: Deploy scientific-calculator container
-  hosts: managed
-  vars:
-    container_name: sci-calc
-    docker_image: "{{ docker_image | default('siddeshwarsk/scientific-calculator:latest') }}"
-    host_port: 8080       # Host port to expose
-    container_port: 8080  # Container port your app listens on
+- name: Deploy Calculator App
+
+  hosts: myhosts
 
   tasks:
-    - name: Pull image from Docker Hub
-      community.docker.docker_image:
-        name: "{{ docker_image }}"
-        source: pull
-
-    - name: Stop and remove existing container (if present)
-      community.docker.docker_container:
-        name: "{{ container_name }}"
+    - name: Remove old containers
+      docker_container:
+        name: calculator
         state: absent
-        force_kill: true
-      ignore_errors: true
+        force_kill: yes
 
-      #TESTING
-    - name: Start container (detached) with port mapping
-      community.docker.docker_container:
-        name: "{{ container_name }}"
-        image: "{{ docker_image }}"
+    - name: Deploy Calculator App
+      # run in background & interactive
+      docker_container:
+        name: sci-calc
+        image: siddeshwarsk/scientific-calculator:latest
         state: started
-        restart_policy: unless-stopped
-        published_ports:
-          - "{{ host_port }}:{{ container_port }}"
+        restart: yes
+        interactive: yes
+        detach: yes
