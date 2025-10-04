@@ -1,29 +1,41 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-creds') 
-        DOCKER_IMAGE = "siddeshwarsk/scientific-calculator:latest"
+  agent any
+  environment {
+    IMAGE = "siddeshwarsk/scientific-calculator"
+    TAG = "latest"         // or "1.0.${BUILD_NUMBER}"
+  }
+  stages {
+    stage('Build & Test') {
+      steps {
+        sh 'mvn -B clean test package'
+      }
     }
 
-    stages {
-        stage('Build with Maven') {
-            steps {
-                sh 'mvn clean test package'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
-            }
-        }
-
-        stage('Login to Docker Hub & Push') {
-            steps {
-                sh "echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin"
-                sh "docker push ${DOCKER_IMAGE}"
-            }
-        }
+    stage('Docker Build') {
+      steps {
+        sh "docker build -t ${IMAGE}:${TAG} ."
+      }
     }
+
+    stage('Docker Push') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                          usernameVariable: 'DH_USER',
+                                          passwordVariable: 'DH_PASS')]) {
+          sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
+          sh "docker push ${IMAGE}:${TAG}"
+        }
+      }
+    }
+
+    stage('Deploy with Ansible') {
+      steps {
+        // run ansible-playbook; pass docker_image via extra-vars
+        sh """
+          sudo ansible-playbook -i ansible/inventories/hosts ansible/playbook.yml \
+            --extra-vars "docker_image=${IMAGE}:${TAG}"
+        """
+      }
+    }
+  }
 }
