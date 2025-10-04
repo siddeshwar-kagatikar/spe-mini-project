@@ -3,7 +3,7 @@
   hosts: myhosts
 
   tasks:
-    - name: Remove old containers #remove old container if exists
+    - name: Remove old containers #remove old container if exists.
       docker_container:
         name: calculator
         state: absent
