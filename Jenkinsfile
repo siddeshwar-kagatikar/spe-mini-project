@@ -32,8 +32,7 @@ pipeline {
       steps {
         // run ansible-playbook; pass docker_image via extra-vars
         sh """
-          sudo ansible-playbook -i ansible/inventories/hosts ansible/playbook.yml \
-            --extra-vars "docker_image=${IMAGE}:${TAG}"
+          sudo ansible-playbook -i ansible/inventories/inventory.ini ansible/playbook.yml
         """
       }
     }
