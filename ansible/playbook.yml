@@ -15,6 +15,5 @@
         name: sci-calc
         image: siddeshwarsk/scientific-calculator:latest
         state: started
-        restart: yes
         interactive: yes
         detach: yes
