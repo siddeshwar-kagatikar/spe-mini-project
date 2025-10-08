@@ -1,86 +1,56 @@
 pipeline {
   agent any
-
-  // Trigger build automatically when code is pushed to GitHub
-  triggers {
-    githubPush()
-  }
-
-  // Use Jenkins Maven tool installation
-  tools {
-    maven '3.8.7'
-  }
-
   environment {
     IMAGE = "siddeshwarsk/scientific-calculator"
     TAG = "latest"  // or "1.0.${BUILD_NUMBER}"
   }
 
   stages {
-
-    stage('Checkout') {
-      steps {
-        // Pull the latest code from GitHub
-        git branch: 'main', url: 'https://github.com/siddeshwar-kagatikar/spe-mini-project.git'
-      }
-    }
-
     stage('Build & Test') {
       steps {
-        // Build and run tests using Maven
         sh 'mvn -B clean test package'
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Docker Build') {
       steps {
-        script {
-          // Build Docker image and capture its ID
-          def dockerImage = docker.build("${IMAGE}:${TAG}", ".")
-          env.DOCKER_IMAGE_ID = dockerImage.id
-        }
+        sh "docker build -t ${IMAGE}:${TAG} ."
       }
     }
 
-    stage('Push Docker Image to Docker Hub') {
+    stage('Docker Push') {
       steps {
-        script {
-          // Authenticate and push image to Docker Hub
-          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
-            docker.image(env.IMAGE).push(env.TAG)
-          }
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                          usernameVariable: 'DH_USER',
+                                          passwordVariable: 'DH_PASS')]) {
+          sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
+          sh "docker push ${IMAGE}:${TAG}"
         }
-      }
-    }
-
-    stage('Clean Docker Resources') {
-      steps {
-        // Clean up unused containers and images
-        sh 'docker container prune -f'
-        sh 'docker image prune -f'
       }
     }
 
     stage('Deploy with Ansible') {
       steps {
-        // Deploy the Docker image using Ansible
-        sh '''
+        sh """
           sudo ansible-playbook -i ansible/inventories/inventory.ini ansible/playbook.yml
-        '''
+        """
       }
     }
   }
 
-  // Post actions (notifications)
   post {
     success {
       mail to: 'siddeshwar2004@gmail.com',
            subject: "SUCCESS: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
            body: """\
-The Jenkins pipeline ${JOB_NAME} build #${BUILD_NUMBER} completed successfully.
+Build succeeded!
 
+Job: ${JOB_NAME}
+Build Number: ${BUILD_NUMBER}
 Docker Image: ${IMAGE}:${TAG}
 Build URL: ${BUILD_URL}
+
+All stages completed successfully.
 """
     }
 
@@ -88,10 +58,13 @@ Build URL: ${BUILD_URL}
       mail to: 'siddeshwar2004@gmail.com',
            subject: "FAILURE: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
            body: """\
-The Jenkins pipeline ${JOB_NAME} build #${BUILD_NUMBER} has failed.
+Build failed
 
-Please check the logs for more details:
-${BUILD_URL}
+Job: ${JOB_NAME}
+Build Number: ${BUILD_NUMBER}
+Check the build logs here: ${BUILD_URL}
+
+Please investigate the issue.
 """
     }
   }
