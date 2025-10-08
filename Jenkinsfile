@@ -4,6 +4,7 @@ pipeline {
     IMAGE = "siddeshwarsk/scientific-calculator"
     TAG = "latest"  // or "1.0.${BUILD_NUMBER}"
   }
+
   stages {
     stage('Build & Test') {
       steps {
@@ -39,33 +40,32 @@ pipeline {
 
   post {
     success {
-      emailext(
-        to: 'siddeshwar2004@gmail.com',
-        // from: 'siddeshwar2004@gmail.com',
-        subject: "SUCCESS: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
-        body: """
-        <h3>Build Success</h3>
-        <p>The Jenkins build <b>#${BUILD_NUMBER}</b> for job <b>${JOB_NAME}</b> completed successfully.</p>
-        <ul>
-          <li><b>Docker Image:</b> ${IMAGE}:${TAG}</li>
-          <li><b>Branch:</b> ${GIT_BRANCH}</li>
-          <li><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></li>
-        </ul>
-        """
-      )
+      mail to: 'siddeshwar2004@gmail.com',
+           subject: "✅ SUCCESS: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
+           body: """\
+Build succeeded! 🎉
+
+Job: ${JOB_NAME}
+Build Number: ${BUILD_NUMBER}
+Docker Image: ${IMAGE}:${TAG}
+Build URL: ${BUILD_URL}
+
+All stages completed successfully.
+"""
     }
 
     failure {
-      emailext(
-        to: 'siddeshwar2004@gmail.com',
-        // from: 'siddeshwar2004@gmail.com',
-        subject: "FAILURE: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
-        body: """
-        <h3>Build Failed!</h3>
-        <p>The Jenkins build <b>#${BUILD_NUMBER}</b> for job <b>${JOB_NAME}</b> has failed.</p>
-        <p>Check the build logs here: <a href="${BUILD_URL}">${BUILD_URL}</a></p>
-        """
-      )
+      mail to: 'siddeshwar2004@gmail.com',
+           subject: "❌ FAILURE: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
+           body: """\
+Build failed ❗
+
+Job: ${JOB_NAME}
+Build Number: ${BUILD_NUMBER}
+Check the build logs here: ${BUILD_URL}
+
+Please investigate the issue.
+"""
     }
   }
-} 
+}
