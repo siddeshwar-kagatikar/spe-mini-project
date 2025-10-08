@@ -2,7 +2,8 @@ pipeline {
   agent any
   environment {
     IMAGE = "siddeshwarsk/scientific-calculator"
-    TAG = "latest"  // or "1.0.${BUILD_NUMBER}"
+    TAG = "latest"
+    CONTAINER_NAME = "scientific-calculator-container"
   }
 
   stages {
@@ -29,6 +30,23 @@ pipeline {
       }
     }
 
+    stage('Run Docker Container') {
+      steps {
+        script {
+          // Stop and remove any running container with same name
+          sh """
+            if [ \$(docker ps -aq -f name=${CONTAINER_NAME}) ]; then
+              echo "Stopping and removing existing container..."
+              docker rm -f ${CONTAINER_NAME} || true
+            fi
+
+            echo "Starting new container..."
+            docker run -d --name ${CONTAINER_NAME} -p 8080:8080 ${IMAGE}:${TAG}
+          """
+        }
+      }
+    }
+
     stage('Deploy with Ansible') {
       steps {
         sh """
@@ -50,7 +68,7 @@ Build Number: ${BUILD_NUMBER}
 Docker Image: ${IMAGE}:${TAG}
 Build URL: ${BUILD_URL}
 
-All stages completed successfully.
+Container '${CONTAINER_NAME}' is now running.
 """
     }
 
@@ -58,7 +76,7 @@ All stages completed successfully.
       mail to: 'siddeshwar2004@gmail.com',
            subject: "FAILURE: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
            body: """\
-Build failed
+Build failed.
 
 Job: ${JOB_NAME}
 Build Number: ${BUILD_NUMBER}
