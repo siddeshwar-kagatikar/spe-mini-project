@@ -58,7 +58,7 @@ pipeline {
     failure {
       emailext(
         to: 'siddeshwar2004@gmail.com',
-        from: 'siddeshwar2004@gmail.com',
+        // from: 'siddeshwar2004@gmail.com',
         subject: "❌ FAILURE: Jenkins Build #${BUILD_NUMBER} for ${JOB_NAME}",
         body: """
         <h3>Build Failed ❗</h3>
