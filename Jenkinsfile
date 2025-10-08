@@ -15,6 +15,7 @@ pipeline {
 
     stage('Docker Build') {
       steps {
+        sh 'cp target/*-shaded.jar target/app.jar'
         sh "docker build -t ${IMAGE}:${TAG} ."
       }
     }

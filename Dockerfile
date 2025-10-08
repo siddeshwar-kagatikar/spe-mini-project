@@ -1,4 +1,4 @@
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY target/app.jar app.jar
+COPY target/scientific-calculator-1.0.0-shaded.jar app.jar
 CMD ["java", "-jar", "app.jar"]
