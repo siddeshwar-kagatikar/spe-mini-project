@@ -30,18 +30,19 @@ pipeline {
       }
     }
 
-    stage('Run Docker Container') {
+    stage('Run Docker Container (interactive)') {
       steps {
         script {
-          // Stop and remove any running container with same name
+          // Stop and remove any existing container
           sh """
             if [ \$(docker ps -aq -f name=${CONTAINER_NAME}) ]; then
               echo "Stopping and removing existing container..."
               docker rm -f ${CONTAINER_NAME} || true
             fi
 
-            echo "Starting new container..."
-            docker run -d --name ${CONTAINER_NAME} -p 8080:8080 ${IMAGE}:${TAG}
+            echo "Starting container in interactive mode..."
+            docker run -i --name ${CONTAINER_NAME} -p 8080:8080 ${IMAGE}:${TAG} &
+            sleep 5
           """
         }
       }
@@ -68,7 +69,7 @@ Build Number: ${BUILD_NUMBER}
 Docker Image: ${IMAGE}:${TAG}
 Build URL: ${BUILD_URL}
 
-Container '${CONTAINER_NAME}' is now running.
+Container '${CONTAINER_NAME}' started in interactive mode.
 """
     }
 
