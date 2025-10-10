@@ -20,4 +20,8 @@ public class Calculator {
         if (x <= 0) throw new IllegalArgumentException("ln: input must be > 0");
         return Math.log(x);
     }
+
+    public static double pow(double x, double b) {
+        return Math.pow(x, b);
+    }
 }

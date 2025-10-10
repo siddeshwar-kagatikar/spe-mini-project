@@ -11,7 +11,7 @@ public class Main {
             System.out.println("1) sqrt(x)");
             System.out.println("2) factorial(n)");
             System.out.println("3) ln(x)");
-            // System.out.println("4) power x^b");
+            System.out.println("4) power x^b");
             System.out.println("0) exit");
             System.out.print("Choose: ");
             String choice = sc.nextLine().trim();
@@ -32,6 +32,13 @@ public class Main {
                         System.out.print("Enter x (double > 0): ");
                         double x = Double.parseDouble(sc.nextLine());
                         System.out.println("ln(" + x + ") = " + Calculator.ln(x));
+                    }
+                    case "4" -> {
+                        System.out.print("Enter base x (double): ");
+                        double x = Double.parseDouble(sc.nextLine());
+                        System.out.print("Enter exponent b (double): ");
+                        double b = Double.parseDouble(sc.nextLine());
+                        System.out.println(x + "^" + b + " = " + Calculator.pow(x, b));
                     }
                     case "0" -> {
                         System.out.println("Goodbye!");

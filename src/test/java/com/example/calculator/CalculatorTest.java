@@ -26,5 +26,18 @@ public class CalculatorTest {
         assertEquals(BigInteger.ONE, Calculator.factorial(0));
     }
 
-   
+    @Test
+    void testLnPositive() {
+        assertEquals(Math.log(2.0), Calculator.ln(2.0), 1e-9);
+    }
+
+    @Test
+    void testLnZeroThrows() {
+        assertThrows(IllegalArgumentException.class, () -> Calculator.ln(0));
+    }
+
+    @Test
+    void testPow() {
+        assertEquals(8.0, Calculator.pow(2.0, 3.0), 1e-9);
+    }
 }
