@@ -5,7 +5,7 @@ pipeline {
     TAG = "latest"
     CONTAINER_NAME = "scientific-calculator-container"
   }
-//hello
+
   stages {
     stage('Build & Test') {
       steps {
